@@ -61,6 +61,10 @@ class Parser {
       )
       ..name = _getPascalCaseClassName(name)
       ..methods = _buildMethods(topLevel)
+      ..docs = ListBuilder([
+        '',
+        '',
+      ])
       ..methods.add(
         Method(
           (b) => b
@@ -118,6 +122,8 @@ class Parser {
     String classString = topLevelClass.accept(DartEmitter()).toString();
 
     String header = """
+
+    
       /// ${ReCase(name).snakeCase};   
     """;
 
