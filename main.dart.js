@@ -45562,7 +45562,7 @@
     },
     _parser$_returnType$2(key, val) {
       var _null = null;
-      if (typeof val == "string")
+      if (typeof val == "string" || H.S(val) === "null")
         return new O.Subtype(H._asStringS(key), C.JsonType_3, _null, val);
       else if (H._isInt(val))
         return new O.Subtype(H._asStringS(key), C.JsonType_0, _null, val);

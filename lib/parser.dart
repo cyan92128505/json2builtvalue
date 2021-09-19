@@ -212,7 +212,7 @@ class Parser {
   }
 
   Subtype _returnType(key, val) {
-    if (val is String)
+    if (val is String || '$val' == 'null')
       return Subtype(key, JsonType.STRING, val);
     else if (val is int)
       return Subtype(key, JsonType.INT, val);
