@@ -31,14 +31,20 @@ class Parser {
 
 //    print('all: $allClasses');
 
-    String output = _generateStringClass(topLevel, topLevelName);
+    String output = _generateStringClass(
+      topLevel,
+      topLevelName,
+    );
 
 //    allClasses.forEach((Tuple2<String, List<Subtype>> tuple){
 //      _generateStringClass(tuple.item2, tuple.item1 + 'Dto');
 //    });
 
     String reduce = allClasses
-        .map((tuple) => _generateStringClass(tuple.item2, tuple.item1))
+        .map((tuple) => _generateStringClass(
+              tuple.item2,
+              tuple.item1,
+            ))
         .reduce((s1, s2) => s1 + s2);
 
     return reduce;
@@ -48,48 +54,71 @@ class Parser {
     var topLevelClass = new Class((b) => b
       ..abstract = true
       ..constructors.add(new Constructor((b) => b..name = '_'))
-      ..implements.add(new Reference(
-          'Built<${_getPascalCaseClassName(name)}, ${_getPascalCaseClassName(
-              name)}Builder>'))
+      ..implements.add(
+        new Reference(
+          'Built<${_getPascalCaseClassName(name)}, ${_getPascalCaseClassName(name)}Builder>',
+        ),
+      )
       ..name = _getPascalCaseClassName(name)
       ..methods = _buildMethods(topLevel)
-      ..methods.add(new Method((b) => b
-        ..name = 'toJson'
-        ..returns = new Reference('String')
-        ..body = new Code(
-            'return json.encode(serializers.serializeWith(${_getPascalCaseClassName(
-                name)}.serializer, this));')))
-      ..methods.add(new Method((b) => b
-        ..name = 'fromJson'
-        ..static = true
-        ..requiredParameters.add(new Parameter((b) => b
-          ..name = 'jsonString'
-          ..type = new Reference('String')))
-        ..returns = new Reference(_getPascalCaseClassName(name))
-        ..body = new Code(
-            'return serializers.deserializeWith(${_getPascalCaseClassName(
-                name)}.serializer, json.decode(jsonString));')))
-      ..methods.add(new Method((b) => b
-        ..type = MethodType.getter
-        ..name = 'serializer'
-        ..static = true
-        ..lambda = true
-        ..returns =
-            new Reference('Serializer<${_getPascalCaseClassName(name)}>')
-        ..body = new Code('_\$${ReCase(name).camelCase}Serializer')))
-      ..constructors.add(new Constructor((b) => b
-        ..factory = true
-        ..redirect = refer(' _\$${_getPascalCaseClassName(name)}')
-        ..requiredParameters.add(new Parameter((b) => b
-        ..defaultTo = Code('= _\$${_getPascalCaseClassName(name)}')
-          ..name = '[updates(${_getPascalCaseClassName(name)}Builder b)]'))),)
-          );
+      ..methods.add(
+        new Method(
+          (b) => b
+            ..name = 'toJson'
+            ..returns = new Reference('Map<String, dynamic>')
+            ..body = new Code(
+              'return serializers.serializeWith(${_getPascalCaseClassName(name)}.serializer, this,);',
+            ),
+        ),
+      )
+      ..methods.add(
+        new Method(
+          (b) => b
+            ..name = 'fromJson'
+            ..static = true
+            ..requiredParameters.add(new Parameter((b) => b
+              ..name = 'json'
+              ..type = new Reference('Map<String, dynamic>')))
+            ..returns = new Reference(_getPascalCaseClassName(name))
+            ..body = new Code(
+              'return serializers.deserializeWith(${_getPascalCaseClassName(name)}.serializer, json,);',
+            ),
+        ),
+      )
+      ..methods.add(
+        new Method(
+          (b) => b
+            ..type = MethodType.getter
+            ..name = 'serializer'
+            ..static = true
+            ..lambda = true
+            ..returns =
+                new Reference('Serializer<${_getPascalCaseClassName(name)}>')
+            ..body = new Code(
+              '_\$${ReCase(name).camelCase}Serializer',
+            ),
+        ),
+      )
+      ..constructors.add(
+        new Constructor(
+          (b) => b
+            ..factory = true
+            ..redirect = refer(' _\$${_getPascalCaseClassName(name)}')
+            ..requiredParameters.add(
+              new Parameter(
+                (b) => b
+                  ..defaultTo = Code('= _\$${_getPascalCaseClassName(name)}')
+                  ..name =
+                      '[updates(${_getPascalCaseClassName(name)}Builder b)]',
+              ),
+            ),
+        ),
+      ));
 
     String classString = topLevelClass.accept(new DartEmitter()).toString();
 
     String header = """
-      library ${new ReCase(name).snakeCase};
-      import 'dart:convert';
+      /// ${new ReCase(name).snakeCase};
       
       import 'package:built_collection/built_collection.dart';
       import 'package:built_value/built_value.dart';
