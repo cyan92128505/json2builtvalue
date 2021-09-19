@@ -45512,7 +45512,7 @@
       topLevelClass = t1.build$0();
       topLevelClass.toString;
       t1 = type$.SpecVisitor_legacy_StringSink._as(new D.DartEmitter(false)).visitClass$2(topLevelClass, type$.nullable_StringSink._as(null))._contents;
-      t1 = "      /// " + M.ReCase$($name)._getSnakeCase$0() + ";   \n    " + (t1.charCodeAt(0) == 0 ? t1 : t1);
+      t1 = "\n    \n      /// " + M.ReCase$($name)._getSnakeCase$0() + ";   \n    " + (t1.charCodeAt(0) == 0 ? t1 : t1);
       return this._dartfmt.formatSource$1(A.SourceCode$(t1, true, null, null, null)).text;
     },
     _buildMethods$1(topLevel) {
@@ -45648,6 +45648,9 @@
       t3 = type$.ListBuilder_Method._as(t1._buildMethods$1(this.topLevel));
       b.get$_class$_$this();
       b.methods = t3;
+      t3 = type$.ListBuilder_String._as(D.ListBuilder_ListBuilder(["", ""], type$.legacy_String));
+      b.get$_class$_$this();
+      b.docs = t3;
       b.get$_class$_$this();
       t3 = b.methods;
       t5 = H._instanceType(t3)._precomputed1;
