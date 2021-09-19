@@ -45512,7 +45512,7 @@
       topLevelClass = t1.build$0();
       topLevelClass.toString;
       t1 = type$.SpecVisitor_legacy_StringSink._as(new D.DartEmitter(false)).visitClass$2(topLevelClass, type$.nullable_StringSink._as(null))._contents;
-      t1 = "      /// " + M.ReCase$($name)._getSnakeCase$0() + ";\n      \n      import 'package:built_collection/built_collection.dart';\n      import 'package:built_value/built_value.dart';\n      import 'package:built_value/serializer.dart';\n      \n      part '" + M.ReCase$($name)._getSnakeCase$0() + ".g.dart';\n    \n    " + (t1.charCodeAt(0) == 0 ? t1 : t1);
+      t1 = "      /// " + M.ReCase$($name)._getSnakeCase$0() + ";   \n    " + (t1.charCodeAt(0) == 0 ? t1 : t1);
       return this._dartfmt.formatSource$1(A.SourceCode$(t1, true, null, null, null)).text;
     },
     _buildMethods$1(topLevel) {
@@ -45806,9 +45806,13 @@
   };
   G.Parser__buildMethods__closure.prototype = {
     call$1(b) {
-      var t1 = this.s,
+      var t4, t5,
+        t1 = this.s,
         t2 = t1.name,
-        t3 = M.ReCase$(t2)._getCamelCase$0();
+        t3 = type$.ListBuilder_String._as(D.ListBuilder_ListBuilder(["/// " + M.ReCase$(t2)._getCamelCase$0()], type$.legacy_String));
+      b.get$_method$_$this();
+      b.docs = t3;
+      t3 = M.ReCase$(t2)._getCamelCase$0();
       b.get$_method$_$this();
       b.name = t3;
       t1 = this.$this._getDartType$1(t1);
@@ -45817,8 +45821,15 @@
       b.get$_method$_$this();
       t1 = b.annotations;
       t3 = H._instanceType(t1)._precomputed1;
+      t4 = t3._as(new B.CodeExpression(new X.StaticCode("nullable")));
+      t5 = !$.$get$isSoundMode();
+      t5 && !t3._is(null);
+      J.add$1$ax(t1.get$_safeList(), t4);
+      b.get$_method$_$this();
+      t1 = b.annotations;
+      t3 = H._instanceType(t1)._precomputed1;
       t2 = t3._as(new B.CodeExpression(new X.StaticCode("BuiltValueField(wireName: '" + H.S(t2) + "')")));
-      !$.$get$isSoundMode() && !t3._is(null);
+      t5 && !t3._is(null);
       J.add$1$ax(t1.get$_safeList(), t2);
       b.get$_method$_$this();
       b.type = C.MethodType_0;
@@ -48146,6 +48157,7 @@
       Link_BeginToken: findType("Link<BeginToken>"),
       Link_Token: findType("Link<Token>"),
       ListBuilder_Method: findType("ListBuilder<Method>"),
+      ListBuilder_String: findType("ListBuilder<String>"),
       ListLiteral: findType("ListLiteral"),
       List_AstNode: findType("List<AstNode>"),
       List_CatchClause: findType("List<CatchClause>"),
@@ -48334,6 +48346,7 @@
       legacy_MouseEvent: findType("MouseEvent*"),
       legacy_Never: findType("0&*"),
       legacy_Object: findType("Object*"),
+      legacy_String: findType("String*"),
       legacy_String_Function_legacy_Tuple2_of_legacy_String_and_legacy_List_legacy_Subtype: findType("String*(Tuple2<String*,List<Subtype*>*>*)"),
       legacy_Subtype: findType("Subtype*"),
       legacy_TextAreaElement: findType("TextAreaElement*"),

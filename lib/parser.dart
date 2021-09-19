@@ -8,7 +8,7 @@ import 'package:recase/recase.dart';
 import 'package:tuple/tuple.dart';
 
 class Parser {
-  final _dartfmt = new DartFormatter();
+  final _dartfmt = DartFormatter();
 
   String parse(String jsonString, String topLevelName) {
     var decode = json.decode(jsonString);
@@ -19,13 +19,13 @@ class Parser {
     if (decode is List) {}
 
     List<Subtype> topLevel = _getTypedClassFields(decode);
-    allClasses.add(new Tuple2(topLevelName, topLevel));
+    allClasses.add(Tuple2(topLevelName, topLevel));
 
     topLevel.forEach((Subtype s) {
       if ((s.type == JsonType.LIST && s.listType == JsonType.MAP) ||
           s.type == JsonType.MAP) {
         var getTypedClassFields = _getTypedClassFields(s.value);
-        allClasses.add(new Tuple2(s.name, getTypedClassFields));
+        allClasses.add(Tuple2(s.name, getTypedClassFields));
       }
     });
 
@@ -51,61 +51,61 @@ class Parser {
   }
 
   String _generateStringClass(List<Subtype> topLevel, String name) {
-    var topLevelClass = new Class((b) => b
+    var topLevelClass = Class((b) => b
       ..abstract = true
-      ..constructors.add(new Constructor((b) => b..name = '_'))
+      ..constructors.add(Constructor((b) => b..name = '_'))
       ..implements.add(
-        new Reference(
+        Reference(
           'Built<${_getPascalCaseClassName(name)}, ${_getPascalCaseClassName(name)}Builder>',
         ),
       )
       ..name = _getPascalCaseClassName(name)
       ..methods = _buildMethods(topLevel)
       ..methods.add(
-        new Method(
+        Method(
           (b) => b
             ..name = 'toJson'
-            ..returns = new Reference('Map<String, dynamic>')
-            ..body = new Code(
+            ..returns = Reference('Map<String, dynamic>')
+            ..body = Code(
               'return serializers.serializeWith(${_getPascalCaseClassName(name)}.serializer, this,);',
             ),
         ),
       )
       ..methods.add(
-        new Method(
+        Method(
           (b) => b
             ..name = 'fromJson'
             ..static = true
-            ..requiredParameters.add(new Parameter((b) => b
+            ..requiredParameters.add(Parameter((b) => b
               ..name = 'json'
-              ..type = new Reference('Map<String, dynamic>')))
-            ..returns = new Reference(_getPascalCaseClassName(name))
-            ..body = new Code(
+              ..type = Reference('Map<String, dynamic>')))
+            ..returns = Reference(_getPascalCaseClassName(name))
+            ..body = Code(
               'return serializers.deserializeWith(${_getPascalCaseClassName(name)}.serializer, json,);',
             ),
         ),
       )
       ..methods.add(
-        new Method(
+        Method(
           (b) => b
             ..type = MethodType.getter
             ..name = 'serializer'
             ..static = true
             ..lambda = true
             ..returns =
-                new Reference('Serializer<${_getPascalCaseClassName(name)}>')
-            ..body = new Code(
+                Reference('Serializer<${_getPascalCaseClassName(name)}>')
+            ..body = Code(
               '_\$${ReCase(name).camelCase}Serializer',
             ),
         ),
       )
       ..constructors.add(
-        new Constructor(
+        Constructor(
           (b) => b
             ..factory = true
             ..redirect = refer(' _\$${_getPascalCaseClassName(name)}')
             ..requiredParameters.add(
-              new Parameter(
+              Parameter(
                 (b) => b
                   ..defaultTo = Code('= _\$${_getPascalCaseClassName(name)}')
                   ..name =
@@ -115,17 +115,10 @@ class Parser {
         ),
       ));
 
-    String classString = topLevelClass.accept(new DartEmitter()).toString();
+    String classString = topLevelClass.accept(DartEmitter()).toString();
 
     String header = """
-      /// ${new ReCase(name).snakeCase};
-      
-      import 'package:built_collection/built_collection.dart';
-      import 'package:built_value/built_value.dart';
-      import 'package:built_value/serializer.dart';
-      
-      part '${new ReCase(name).snakeCase}.g.dart';
-    
+      /// ${ReCase(name).snakeCase};   
     """;
 
     String output = _dartfmt.format(header + classString);
@@ -134,34 +127,53 @@ class Parser {
     return output;
   }
 
-  String _getPascalCaseClassName(String name) => new ReCase(name).pascalCase;
+  String _getPascalCaseClassName(String name) => ReCase(name).pascalCase;
 
   ListBuilder<Method> _buildMethods(List<Subtype> topLevel) {
-    return new ListBuilder(topLevel.map((Subtype s) => new Method((b) => b
-      ..name = new ReCase(s.name).camelCase
-      ..returns = _getDartType(s)
-      ..annotations.add(new CodeExpression(
-          new Code("BuiltValueField(wireName: '${s.name}')")))
-      ..type = MethodType.getter)));
+    return ListBuilder(
+      topLevel.map(
+        (Subtype s) => Method(
+          (b) => b
+            ..docs = ListBuilder(['/// ${ReCase(s.name).camelCase}'])
+            ..name = ReCase(s.name).camelCase
+            ..returns = _getDartType(s)
+            ..annotations.add(
+              CodeExpression(
+                Code(
+                  "nullable",
+                ),
+              ),
+            )
+            ..annotations.add(
+              CodeExpression(
+                Code(
+                  "BuiltValueField(wireName: '${s.name}')",
+                ),
+              ),
+            )
+            ..type = MethodType.getter,
+        ),
+      ),
+    );
   }
 
   Reference _getDartType(Subtype subtype) {
     JsonType type = subtype.type;
     switch (type) {
       case JsonType.INT:
-        return new Reference('int');
+        return Reference('int');
       case JsonType.DOUBLE:
-        return new Reference('double');
+        return Reference('double');
       case JsonType.BOOL:
-        return new Reference('bool');
+        return Reference('bool');
       case JsonType.STRING:
-        return new Reference('String');
+        return Reference('String');
       case JsonType.MAP:
-        return new Reference(new ReCase(subtype.name).pascalCase);
+        return Reference(ReCase(subtype.name).pascalCase);
       case JsonType.LIST:
-        return new Reference('BuiltList<${_getDartTypeFromJsonType(subtype)}>');
+        return Reference('BuiltList<${_getDartTypeFromJsonType(subtype)}>');
       default:
-        return new Reference('dynamic');
+        return Reference('dynamic');
     }
   }
 
@@ -175,7 +187,7 @@ class Parser {
       case JsonType.STRING:
         return 'String';
       case JsonType.MAP:
-        return new ReCase(subtype.name).pascalCase;
+        return ReCase(subtype.name).pascalCase;
       default:
         return 'dynamic';
     }
@@ -201,20 +213,19 @@ class Parser {
 
   Subtype _returnType(key, val) {
     if (val is String)
-      return new Subtype(key, JsonType.STRING, val);
+      return Subtype(key, JsonType.STRING, val);
     else if (val is int)
-      return new Subtype(key, JsonType.INT, val);
+      return Subtype(key, JsonType.INT, val);
     else if (val is num)
-      return new Subtype(key, JsonType.DOUBLE, val);
+      return Subtype(key, JsonType.DOUBLE, val);
     else if (val is bool)
-      return new Subtype(key, JsonType.BOOL, val);
+      return Subtype(key, JsonType.BOOL, val);
     else if (val is List) {
-      return new Subtype(key, JsonType.LIST, val,
-          listType: _returnJsonType(val));
+      return Subtype(key, JsonType.LIST, val, listType: _returnJsonType(val));
     } else if (val is Map) {
-      return new Subtype(key, JsonType.MAP, val);
+      return Subtype(key, JsonType.MAP, val);
     } else
-      throw new ArgumentError('Cannot resolve JSON-encodable type for $val.');
+      throw ArgumentError('Cannot resolve JSON-encodable type for $val.');
   }
 
   JsonType _returnJsonType(List list) {
@@ -231,6 +242,6 @@ class Parser {
     else if (item is Map)
       return JsonType.MAP;
     else
-      throw new ArgumentError('Cannot resolve JSON-encodable type for $item.');
+      throw ArgumentError('Cannot resolve JSON-encodable type for $item.');
   }
 }
